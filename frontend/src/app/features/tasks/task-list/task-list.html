@@ -1,0 +1,20 @@
+@if (loading()) {
+  <p class="py-10 text-center text-sm text-slate-500">Cargando tareas…</p>
+} @else {
+  <ul class="flex flex-col gap-3">
+    @for (task of tasks(); track task.id) {
+      <li>
+        <app-task-card
+          [task]="task"
+          [busy]="busyIds().has(task.id)"
+          (statusChange)="statusChange.emit($event)"
+          (remove)="remove.emit($event)"
+        />
+      </li>
+    } @empty {
+      <li class="rounded-xl border border-dashed border-slate-300 py-10 text-center text-sm text-slate-500">
+        No hay tareas para mostrar.
+      </li>
+    }
+  </ul>
+}

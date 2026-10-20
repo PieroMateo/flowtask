@@ -1,0 +1,33 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <section class="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="new-task-title">
+    <h2 id="new-task-title" class="mb-4 text-lg font-semibold text-slate-900">Nueva tarea</h2>
+    <app-task-form [categories]="categories()" (created)="onTaskCreated()" />
+  </section>
+
+  <section class="flex flex-col gap-4 lg:col-span-2" aria-labelledby="tasks-title">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="mb-4 flex items-baseline justify-between">
+        <h2 id="tasks-title" class="text-lg font-semibold text-slate-900">Tareas</h2>
+        @if (!loading() && !loadFailed()) {
+          <span class="text-sm text-slate-500">{{ tasks().length }} en esta vista</span>
+        }
+      </div>
+      <app-filter-bar [filters]="filters()" [categories]="categories()" (filtersChange)="onFiltersChange($event)" />
+    </div>
+
+    @if (loadFailed()) {
+      <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800">
+        <p>No se pudieron cargar las tareas.</p>
+        <button type="button" class="btn-secondary mt-3" (click)="loadTasks()">Reintentar</button>
+      </div>
+    } @else {
+      <app-task-list
+        [tasks]="tasks()"
+        [loading]="loading()"
+        [busyIds]="busyIds()"
+        (statusChange)="onStatusChange($event)"
+        (remove)="onRemove($event)"
+      />
+    }
+  </section>
+</div>

@@ -1,0 +1,24 @@
+<div class="flex flex-col gap-3 sm:flex-row">
+  <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+    Estado
+    <!-- #statusSelect es una variable de plantilla: referencia directa al elemento <select>. -->
+    <select #statusSelect class="input" (change)="onStatusChange(statusSelect.value)">
+      <option value="" [selected]="!filters().status">Todos</option>
+      @for (status of statuses; track status) {
+        <option [value]="status" [selected]="filters().status === status">{{ status }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+    Categoría
+    <select #categorySelect class="input" (change)="onCategoryChange(categorySelect.value)">
+      <option value="" [selected]="!filters().categoryId">Todas</option>
+      @for (category of categories(); track category.id) {
+        <option [value]="category.id" [selected]="filters().categoryId === category.id">
+          {{ category.name }}
+        </option>
+      }
+    </select>
+  </label>
+</div>

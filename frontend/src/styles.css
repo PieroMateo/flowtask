@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+/* Clases reutilizables construidas con utilidades de Tailwind (@apply). */
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900
+      focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none;
+  }
+
+  /* Base común de todos los botones. */
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium
+      transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-indigo-600 text-white hover:bg-indigo-700;
+  }
+  .btn-secondary {
+    @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-100;
+  }
+  .btn-success {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700;
+  }
+  .btn-danger {
+    @apply border border-red-200 bg-white text-red-600 hover:bg-red-50;
+  }
+}

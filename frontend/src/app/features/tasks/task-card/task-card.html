@@ -1,0 +1,61 @@
+<article
+  class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition sm:flex-row sm:items-center"
+  [class.opacity-60]="busy()"
+>
+  <div class="min-w-0 flex-1">
+    <div class="flex flex-wrap items-center gap-2">
+      <h3 class="font-semibold text-slate-900" [class.line-through]="isCompleted()" [class.text-slate-400]="isCompleted()">
+        {{ task().title }}
+      </h3>
+      <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="badgeClasses()">
+        {{ task().status }}
+      </span>
+    </div>
+
+    @if (task().description) {
+      <p class="mt-1 text-sm text-slate-600">{{ task().description }}</p>
+    }
+
+    <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+      <span>🏷️ {{ task().category.name }}</span>
+      <span [class.font-semibold]="isOverdue()" [class.text-red-600]="isOverdue()">
+        📅 {{ task().due_date | date: 'dd/MM/yyyy' }}
+        @if (isOverdue()) {
+          · Vencida
+        }
+      </span>
+    </div>
+  </div>
+
+  <div class="flex shrink-0 items-center gap-2">
+    @switch (task().status) {
+      @case ('Pendiente') {
+        <button type="button" class="btn-secondary" [disabled]="busy()" (click)="changeStatus('En Progreso')">
+          Iniciar
+        </button>
+        <button type="button" class="btn-success" [disabled]="busy()" (click)="changeStatus('Completada')">
+          ✓ Completar
+        </button>
+      }
+      @case ('En Progreso') {
+        <button type="button" class="btn-success" [disabled]="busy()" (click)="changeStatus('Completada')">
+          ✓ Completar
+        </button>
+      }
+      @case ('Completada') {
+        <button type="button" class="btn-secondary" [disabled]="busy()" (click)="changeStatus('Pendiente')">
+          ↺ Reabrir
+        </button>
+      }
+    }
+    <button
+      type="button"
+      class="btn-danger"
+      [disabled]="busy()"
+      (click)="remove.emit(task())"
+      [attr.aria-label]="'Eliminar tarea ' + task().title"
+    >
+      🗑
+    </button>
+  </div>
+</article>
