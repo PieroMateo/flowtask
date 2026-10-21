@@ -18,7 +18,7 @@
     @if (loadFailed()) {
       <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800">
         <p>No se pudieron cargar las tareas.</p>
-        <button type="button" class="btn-secondary mt-3" (click)="loadTasks()">Reintentar</button>
+        <button type="button" class="btn-secondary mt-3" (click)="retry()">Reintentar</button>
       </div>
     } @else {
       <app-task-list

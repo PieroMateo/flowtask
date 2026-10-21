@@ -37,7 +37,7 @@ export class TaskBoard implements OnInit {
     this.loadTasks();
   }
 
-  protected loadTasks(): void {
+  private loadTasks(): void {
     // si se cambia de filtro rapido se cancela la peticion anterior,
     // asi una respuesta vieja no pisa a la nueva
     this.loadSubscription?.unsubscribe();
@@ -54,6 +54,15 @@ export class TaskBoard implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  // si el backend estaba apagado al abrir la pagina tampoco llegaron las categorias,
+  // por eso el boton reintentar vuelve a pedir las dos cosas
+  protected retry(): void {
+    if (this.categories().length === 0) {
+      this.loadCategories();
+    }
+    this.loadTasks();
   }
 
   protected onFiltersChange(filters: TaskFilters): void {
