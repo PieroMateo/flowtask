@@ -55,7 +55,7 @@ Después de clonar hay que preparar las dos partes. Esto se hace una sola vez.
 Backend:
 
 ```bash
-git clone <url-del-repo>
+git clone https://github.com/PieroMateo/flowtask.git
 cd flowtask/backend
 
 # crea el entorno virtual, una carpeta .venv con su propio python
