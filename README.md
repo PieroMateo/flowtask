@@ -10,7 +10,7 @@ Aplicación para llevar el seguimiento de tareas de un equipo pequeño. Cada tar
 - Base de datos: SQLite, usando SQLAlchemy 2.x como ORM
 - Frontend: Angular 22 con TypeScript y Tailwind CSS 4
 - Pruebas: pytest con el TestClient de FastAPI
-- Docker Compose para levantar todo junto (el frontend se sirve con nginx)
+- Docker Compose para levantar todo junto
 
 ## Estructura
 
@@ -142,21 +142,6 @@ Cada prueba trabaja con una base de datos SQLite en memoria que se crea y se bor
 - `DELETE /tasks/{id}` borra la tarea y responde 204, sin contenido.
 
 Si el id de la URL no existe la API responde 404, y si los datos que se mandan no son válidos responde 422.
-
-Ejemplo para crear una tarea:
-
-```json
-POST /tasks
-{
-  "title": "Preparar informe mensual",
-  "description": "Consolidar métricas del equipo",
-  "status": "Pendiente",
-  "due_date": "2026-10-30",
-  "category_id": 1
-}
-```
-
-Todos los errores tienen la forma `{"detail": ...}`. Por ejemplo, `GET /tasks/99999` responde `404 {"detail": "Tarea no encontrada"}`.
 
 ## Decisiones de Diseño y Arquitectura
 
