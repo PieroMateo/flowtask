@@ -11,7 +11,7 @@ import { StatusChange } from '../task-card/task-card';
 import { TaskForm } from '../task-form/task-form';
 import { TaskList } from '../task-list/task-list';
 
-/** Contenedor: guarda el estado del tablero y es el único que coordina los servicios. */
+// el que manda en el tablero: tiene el estado y es el que llama a los servicios
 @Component({
   selector: 'app-task-board',
   imports: [FilterBar, TaskForm, TaskList],
@@ -27,7 +27,7 @@ export class TaskBoard implements OnInit {
   protected readonly filters = signal<TaskFilters>({});
   protected readonly loading = signal(false);
   protected readonly loadFailed = signal(false);
-  /** Ids de tareas con una petición en curso. */
+  // ids de las tareas que estan esperando respuesta del backend
   protected readonly busyIds = signal<ReadonlySet<number>>(new Set());
 
   private loadSubscription?: Subscription;
@@ -38,8 +38,8 @@ export class TaskBoard implements OnInit {
   }
 
   protected loadTasks(): void {
-    // Si el usuario cambia de filtro rápido, se cancela la petición anterior para que una
-    // respuesta vieja no sobrescriba a la nueva.
+    // si se cambia de filtro rapido se cancela la peticion anterior,
+    // asi una respuesta vieja no pisa a la nueva
     this.loadSubscription?.unsubscribe();
     this.loading.set(true);
     this.loadFailed.set(false);
@@ -62,7 +62,7 @@ export class TaskBoard implements OnInit {
   }
 
   protected onTaskCreated(): void {
-    // Se recarga para respetar el filtro y el orden por fecha que decide el backend.
+    // se vuelve a pedir la lista para respetar el filtro y el orden por fecha del backend
     this.loadTasks();
   }
 
@@ -70,7 +70,7 @@ export class TaskBoard implements OnInit {
     this.setBusy(task.id, true);
     this.taskService.updateStatus(task.id, status).subscribe({
       next: (updated) => {
-        // Si con el nuevo estado la tarea ya no cumple el filtro activo, se quita de la vista.
+        // si con el nuevo estado ya no entra en el filtro, se saca de la lista
         this.tasks.update((list) =>
           this.matchesFilters(updated)
             ? list.map((t) => (t.id === updated.id ? updated : t))
@@ -101,7 +101,7 @@ export class TaskBoard implements OnInit {
   private loadCategories(): void {
     this.categoryService.getAll().subscribe({
       next: (categories) => this.categories.set(categories),
-      error: () => {}, // el interceptor ya mostró el aviso
+      error: () => {}, // el aviso ya lo saca el interceptor
     });
   }
 
@@ -111,7 +111,7 @@ export class TaskBoard implements OnInit {
   }
 
   private setBusy(id: number, busy: boolean): void {
-    // Se crea un Set nuevo (no se modifica el actual) para que la signal detecte el cambio.
+    // se arma un Set nuevo, si se modifica el mismo la signal no se da cuenta
     this.busyIds.update((ids) => {
       const next = new Set(ids);
       if (busy) next.add(id);

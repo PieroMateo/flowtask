@@ -1,4 +1,4 @@
-<!-- aria-live: los lectores de pantalla anuncian los avisos nuevos. -->
+<!-- aria-live hace que los lectores de pantalla lean el aviso cuando aparece -->
 <div class="fixed bottom-4 right-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2" aria-live="polite">
   @for (n of notificationService.notifications(); track n.id) {
     <div

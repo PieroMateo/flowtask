@@ -1,6 +1,7 @@
 fastapi==0.150.0
-uvicorn[standard]==0.54.0
+uvicorn[standard]==0.54.0 #el standard instala paquetes opcionales para que sea mas rapido
 SQLAlchemy==2.1.5
 pydantic-settings==2.16.0
 pytest==9.1.1
 httpx2==2.15.1
+# == es obligatorio para que se instalen las versiones correctas de las librerias

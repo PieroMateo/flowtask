@@ -1,4 +1,4 @@
-/** Espejo de CategoryRead del backend. */
+// igual a CategoryRead del backend
 export interface Category {
   id: number;
   name: string;

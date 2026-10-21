@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
+# solo para el editor, evita el import circular entre category.py y task.py
 if TYPE_CHECKING:
     from app.models.task import Task
 
@@ -16,5 +17,5 @@ class Category(Base):
     name: Mapped[str] = mapped_column(String(50), unique=True)
     description: Mapped[str | None] = mapped_column(String(255))
 
-    # Lado "1" de la relación 1:N: una categoría tiene muchas tareas.
+    # una categoria tiene muchas tareas (lado "1" de la relacion)
     tasks: Mapped[list["Task"]] = relationship(back_populates="category")

@@ -3,7 +3,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
-// Herramientas globales de la app: aquí se "enchufa" HttpClient con su interceptor.
+// aqui se activa HttpClient y se le engancha el interceptor de errores
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),

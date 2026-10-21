@@ -1,13 +1,10 @@
 from enum import Enum
 
 
+# los 3 estados que acepta una tarea. si se agrega otro hay que ponerlo tambien
+# en TASK_STATUSES del frontend (task.model.ts)
+# hereda de str para que en el json salga como texto normal ("Pendiente")
 class TaskStatus(str, Enum):
-    """Estados permitidos de una tarea.
-
-    Es la única fuente de verdad: la usan el modelo (BD), los esquemas (validación)
-    y los filtros del router. Hereda de str para que se serialice como texto en JSON.
-    """
-
     PENDIENTE = "Pendiente"
     EN_PROGRESO = "En Progreso"
     COMPLETADA = "Completada"

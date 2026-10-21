@@ -10,5 +10,5 @@ def test_list_categories_returns_seeded_defaults(client):
 
 
 def test_seed_is_idempotent(db_session):
-    # La fixture ya ejecutó la semilla una vez; volver a ejecutarla no debe insertar nada.
+    # la fixture ya corrio la semilla una vez, la segunda no deberia insertar nada
     assert seed_categories(db_session) == 0

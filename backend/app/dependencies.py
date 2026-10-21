@@ -6,6 +6,7 @@ from app.services.category_service import CategoryService
 from app.services.task_service import TaskService
 
 
+# fastapi resuelve la cadena solo: el endpoint pide el service y el service pide la sesion
 def get_category_service(db: Session = Depends(get_db)) -> CategoryService:
     return CategoryService(db)
 

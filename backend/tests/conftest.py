@@ -5,17 +5,18 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401  (registra los modelos en Base.metadata)
+import app.models  # noqa: F401  (registra los modelos antes de crear las tablas)
 from app.database import Base, create_db_engine, get_db
 from app.seed import seed_categories
 from main import app
 
-# SQLite en memoria: cada test trabaja sobre una BD vacía y desechable, nunca sobre flowtask.db.
-# StaticPool reutiliza una única conexión; sin él, cada conexión nueva vería una BD en blanco.
+# los tests usan una bd en memoria que se borra al terminar, flowtask.db no se toca.
+# StaticPool reusa la misma conexion, sin eso cada conexion nueva veria la bd vacia
 test_engine = create_db_engine("sqlite://", poolclass=StaticPool)
 TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False)
 
 
+# antes de cada test crea las tablas y la semilla, despues borra todo
 @pytest.fixture
 def db_session() -> Generator[Session, None, None]:
     Base.metadata.create_all(bind=test_engine)
@@ -28,9 +29,9 @@ def db_session() -> Generator[Session, None, None]:
 
 @pytest.fixture
 def client(db_session: Session) -> Generator[TestClient, None, None]:
-    # Reemplaza la dependencia real: los endpoints reciben la sesión de prueba.
+    # cambia get_db por la sesion de prueba, los endpoints ni se enteran
     app.dependency_overrides[get_db] = lambda: db_session
-    # Sin "with": no se ejecuta el lifespan, así que no se toca la BD real.
+    # sin "with" para que no corra el lifespan y no cree la bd real
     yield TestClient(app)
     app.dependency_overrides.clear()
 

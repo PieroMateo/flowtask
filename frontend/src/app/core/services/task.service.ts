@@ -5,14 +5,14 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Task, TaskCreate, TaskFilters, TaskStatus, TaskUpdate } from '../models/task.model';
 
-/** Único lugar del frontend que sabe cómo hablar con /tasks. */
+// todas las llamadas a /tasks pasan por aqui, los componentes no usan HttpClient directo
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/tasks`;
 
   getAll(filters: TaskFilters = {}): Observable<Task[]> {
-    // HttpParams es inmutable: cada set() devuelve una copia nueva.
+    // set() no modifica params, devuelve uno nuevo, por eso se vuelve a asignar
     let params = new HttpParams();
     if (filters.status) params = params.set('status', filters.status);
     if (filters.categoryId) params = params.set('category_id', filters.categoryId);

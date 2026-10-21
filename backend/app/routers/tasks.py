@@ -7,13 +7,13 @@ from app.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-# Respuestas de error documentadas en /docs (además del 422 que FastAPI agrega solo).
+# para que el 404 aparezca documentado en /docs (el 422 fastapi lo agrega solo)
 NOT_FOUND = {404: {"description": "Tarea no encontrada"}}
 
 
 @router.get("", response_model=list[TaskRead])
 def list_tasks(
-    # alias: en la URL se llama ?status=..., pero en Python evitamos chocar con fastapi.status.
+    # en la url se llama ?status=, pero aqui le cambio el nombre porque ya importe status de fastapi
     task_status: TaskStatus | None = Query(None, alias="status"),
     category_id: int | None = None,
     limit: int = Query(50, ge=1, le=100),

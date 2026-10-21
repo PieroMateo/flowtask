@@ -3,7 +3,7 @@ import { Component, input, output } from '@angular/core';
 import { Task } from '../../../core/models/task.model';
 import { StatusChange, TaskCard } from '../task-card/task-card';
 
-/** Presentacional: dibuja la lista (o su estado vacío) y reenvía los eventos de cada tarjeta. */
+// pinta las tarjetas (o el mensaje de vacio) y pasa hacia arriba lo que emite cada una
 @Component({
   selector: 'app-task-list',
   imports: [TaskCard],

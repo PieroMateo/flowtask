@@ -8,9 +8,9 @@ from app.repositories.task_repository import TaskRepository
 from app.schemas.task import TaskCreate, TaskUpdate
 
 
+# aqui van las reglas de las tareas. si algo esta mal se lanza una excepcion
+# y exceptions.py la convierte en 404 o 422
 class TaskService:
-    """Reglas de negocio de las tareas. No sabe nada de HTTP: comunica errores con excepciones."""
-
     def __init__(self, db: Session):
         self.tasks = TaskRepository(db)
         self.categories = CategoryRepository(db)
@@ -24,6 +24,7 @@ class TaskService:
     ) -> list[Task]:
         return self.tasks.list(status, category_id, limit, offset)
 
+    # la usan tambien update y delete, asi el 404 se escribe una sola vez
     def get_task(self, task_id: int) -> Task:
         task = self.tasks.get_by_id(task_id)
         if task is None:
@@ -36,7 +37,7 @@ class TaskService:
 
     def update_task(self, task_id: int, data: TaskUpdate) -> Task:
         task = self.get_task(task_id)
-        # exclude_unset: solo los campos que el cliente envió de verdad.
+        # exclude_unset deja solo los campos que el cliente mando
         changes = data.model_dump(exclude_unset=True)
         if "category_id" in changes:
             self._ensure_category_exists(changes["category_id"])
@@ -45,7 +46,7 @@ class TaskService:
     def delete_task(self, task_id: int) -> None:
         self.tasks.delete(self.get_task(task_id))
 
+    # pydantic no puede saber si la categoria existe, eso hay que preguntarlo a la bd
     def _ensure_category_exists(self, category_id: int) -> None:
-        # Pydantic valida la forma del dato; que la categoría exista solo lo sabe la BD.
         if self.categories.get_by_id(category_id) is None:
             raise InvalidReferenceError(f"La categoría con id {category_id} no existe")

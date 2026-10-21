@@ -1,7 +1,7 @@
 import pytest
 
 
-# ---------- Caso 2: registro y validación ----------
+# caso 2: registro y validación
 
 def test_create_task_returns_201_with_id_and_defaults(client, task_payload):
     response = client.post("/tasks", json=task_payload)
@@ -44,7 +44,7 @@ def test_create_task_with_missing_category_returns_422(client, task_payload):
     assert response.json() == {"detail": "La categoría con id 999 no existe"}
 
 
-# ---------- Caso 3: listado y filtros ----------
+# caso 3: listado y filtros
 
 def test_list_tasks_filters_by_status(client, task_payload):
     client.post("/tasks", json=task_payload)
@@ -67,7 +67,7 @@ def test_list_tasks_supports_pagination(client, task_payload):
     assert [task["title"] for task in response.json()] == ["Tarea 1", "Tarea 2"]
 
 
-# ---------- Caso 4: cambio de estado y borrado ----------
+# caso 4: cambio de estado y borrado
 
 def test_patch_marks_task_as_completed(client, task_payload):
     task_id = client.post("/tasks", json=task_payload).json()["id"]
@@ -76,7 +76,7 @@ def test_patch_marks_task_as_completed(client, task_payload):
 
     assert response.status_code == 200
     assert response.json()["status"] == "Completada"
-    assert response.json()["title"] == task_payload["title"]  # lo demás no cambia
+    assert response.json()["title"] == task_payload["title"]  # lo demas se queda igual
 
 
 def test_delete_task_removes_it(client, task_payload):
@@ -88,7 +88,7 @@ def test_delete_task_removes_it(client, task_payload):
     assert client.get(f"/tasks/{task_id}").status_code == 404
 
 
-# ---------- Caso 5: recursos inexistentes ----------
+# caso 5: recursos inexistentes
 
 def test_get_missing_task_returns_404_with_detail(client):
     response = client.get("/tasks/99999")

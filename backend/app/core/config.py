@@ -1,15 +1,11 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# si existe una variable de entorno con el mismo nombre (DATABASE_URL, CORS_ORIGINS)
+# se usa esa en lugar del valor de aqui, asi docker cambia la config sin tocar codigo
 class Settings(BaseSettings):
-    """Configuración de la app.
-
-    Cada atributo se puede sobrescribir con una variable de entorno del mismo
-    nombre (DATABASE_URL, CORS_ORIGINS) o desde un archivo .env, sin tocar código.
-    """
-
     database_url: str = "sqlite:///./flowtask.db"
-    # Orígenes a los que el navegador tiene permitido llamar a la API (CORS estricto).
+    # origenes que pueden llamar a la API desde el navegador
     cors_origins: list[str] = ["http://localhost:4200"]
 
     model_config = SettingsConfigDict(env_file=".env")

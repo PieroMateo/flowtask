@@ -6,19 +6,19 @@ from fastapi.responses import JSONResponse
 logger = logging.getLogger(__name__)
 
 
+# lo que se pide en la url no existe, ej: GET /tasks/99999
 class NotFoundError(Exception):
-    """El recurso solicitado en la URL no existe (ej. GET /tasks/99999)."""
+    pass
 
 
+# el body apunta a algo que no existe, ej: un category_id que no esta en la bd
 class InvalidReferenceError(Exception):
-    """El body referencia un recurso que no existe (ej. category_id inexistente)."""
+    pass
 
 
+# los services solo lanzan estas excepciones y aqui se decide que codigo http responder,
+# por eso los services no importan nada de fastapi
 def register_exception_handlers(app: FastAPI) -> None:
-    """Traduce las excepciones de dominio a respuestas HTTP con formato {"detail": ...}.
-
-    Así los services no conocen HTTP: solo lanzan la excepción y aquí se decide el código.
-    """
 
     @app.exception_handler(NotFoundError)
     async def handle_not_found(_: Request, exc: NotFoundError) -> JSONResponse:
@@ -30,10 +30,10 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content={"detail": str(exc)}
         )
 
+    # por si algo falla y no lo teniamos previsto: el error real queda en la consola
+    # y al cliente le llega un mensaje simple, sin detalles internos
     @app.exception_handler(Exception)
     async def handle_unexpected(_: Request, exc: Exception) -> JSONResponse:
-        # Red de seguridad: si algo falla sin control, se registra el error real en consola
-        # y el cliente recibe un mensaje limpio en vez de un stack trace.
         logger.exception("Error no controlado: %s", exc)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

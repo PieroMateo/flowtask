@@ -3,7 +3,7 @@ import { Component, input, output } from '@angular/core';
 import { Category } from '../../../core/models/category.model';
 import { TASK_STATUSES, TaskFilters, TaskStatus } from '../../../core/models/task.model';
 
-/** Presentacional: muestra los filtros actuales y emite los nuevos cuando el usuario cambia algo. */
+// muestra los filtros actuales y emite los nuevos, quien llama al backend es el board
 @Component({
   selector: 'app-filter-bar',
   templateUrl: './filter-bar.html',
@@ -17,8 +17,9 @@ export class FilterBar {
   protected readonly statuses = TASK_STATUSES;
 
   protected onStatusChange(value: string): void {
-    // "" es la opción "Todos": se traduce a undefined (= sin filtro).
+    // la opcion "Todos" viene vacia, eso se pasa como undefined para no filtrar
     const status = value ? (value as TaskStatus) : undefined;
+    // se copian los filtros que ya habia para no perder la categoria elegida
     this.filtersChange.emit({ ...this.filters(), status });
   }
 

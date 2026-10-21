@@ -18,12 +18,12 @@ class Task(Base):
     title: Mapped[str] = mapped_column(String(150))
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[TaskStatus] = mapped_column(
-        # Guarda el valor legible ("En Progreso") y no el nombre del miembro (EN_PROGRESO).
+        # values_callable hace que se guarde "En Progreso" y no el nombre EN_PROGRESO
         Enum(TaskStatus, values_callable=lambda e: [m.value for m in e], native_enum=False),
         default=TaskStatus.PENDIENTE,
     )
     due_date: Mapped[date]
-    # Lado "N": cada tarea guarda la llave foránea hacia su categoría.
+    # la llave foranea va en la tarea porque es el lado "muchos"
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), index=True)
 
     category: Mapped["Category"] = relationship(back_populates="tasks")

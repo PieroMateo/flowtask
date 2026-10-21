@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from app.models import Category
 
 
+# aqui solo se consulta y se guarda, las reglas van en el service
 class CategoryRepository:
-    """Acceso a datos de categorías. Solo consulta y guarda; no aplica reglas de negocio."""
-
     def __init__(self, db: Session):
         self.db = db
 

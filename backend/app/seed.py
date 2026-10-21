@@ -10,11 +10,9 @@ DEFAULT_CATEGORIES = [
 ]
 
 
+# solo inserta las que faltan, asi se puede correr varias veces sin duplicar nada.
+# devuelve cuantas inserto
 def seed_categories(db: Session) -> int:
-    """Inserta las categorías base que falten. Es idempotente: ejecutarla N veces no duplica.
-
-    Devuelve cuántas categorías nuevas se insertaron.
-    """
     repo = CategoryRepository(db)
     inserted = 0
     for name, description in DEFAULT_CATEGORIES:
@@ -24,9 +22,9 @@ def seed_categories(db: Session) -> int:
     return inserted
 
 
+# crea las tablas que no existan y luego mete las categorias base
 def init_db() -> int:
-    """Crea las tablas que no existan y carga la semilla."""
-    import app.models  # noqa: F401  (registra los modelos en Base.metadata)
+    import app.models  # noqa: F401  (hace falta para que create_all conozca las tablas)
 
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:

@@ -15,7 +15,7 @@
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
     <label class="flex flex-col gap-1 text-sm font-medium text-slate-700">
       Fecha límite *
-      <!-- type="date" entrega el valor como "YYYY-MM-DD", justo el formato que espera la API. -->
+      <!-- el input date ya devuelve "YYYY-MM-DD", que es lo que espera la API -->
       <input class="input" type="date" formControlName="due_date" />
       @if (showError('due_date')) {
         <span class="text-xs font-normal text-red-600">Selecciona una fecha.</span>
@@ -35,7 +35,7 @@
   <label class="flex flex-col gap-1 text-sm font-medium text-slate-700">
     Categoría *
     <select class="input" formControlName="category_id">
-      <!-- [ngValue] conserva el tipo: el control recibe el número 1, no el texto "1". -->
+      <!-- ngValue deja el id como numero, con value llegaria como texto "1" -->
       <option [ngValue]="null" disabled>Selecciona una categoría</option>
       @for (category of categories(); track category.id) {
         <option [ngValue]="category.id">{{ category.name }}</option>

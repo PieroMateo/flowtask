@@ -4,12 +4,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # Ruta absoluta dentro del contenedor (4 barras = sqlite:// + /app/data/...).
+      # 4 barras porque es sqlite:// mas la ruta absoluta /app/data/...
       DATABASE_URL: sqlite:////app/data/flowtask.db
       CORS_ORIGINS: '["http://localhost:4200"]'
     volumes:
-      # La base de datos vive en un volumen: sobrevive a reinicios y reconstrucciones.
+      # la bd queda en un volumen para no perder las tareas al reiniciar
       - flowtask-data:/app/data
+    # revisa cada 5 segundos si el backend ya responde
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
       interval: 5s
@@ -20,6 +21,7 @@ services:
     build: ./frontend
     ports:
       - "4200:80"
+    # el frontend espera a que el backend este respondiendo, no solo encendido
     depends_on:
       backend:
         condition: service_healthy

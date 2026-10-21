@@ -1,21 +1,21 @@
-# Python
+# python
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 
-# Base de datos local (se regenera con el seed)
+# la bd local, se vuelve a crear con el seed
 *.db
 
-# Node / Angular
+# node / angular
 node_modules/
 dist/
 .angular/
 
-# Entorno y editores
+# entorno y editores
 .env
 .vscode/
 .idea/
 
-# Enunciado de la prueba (documento de la empresa, no forma parte del código)
+# el enunciado de la prueba no va en el repo
 *.docx

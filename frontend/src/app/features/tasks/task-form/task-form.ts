@@ -6,10 +6,8 @@ import { TASK_STATUSES, Task, TaskStatus } from '../../../core/models/task.model
 import { NotificationService } from '../../../core/services/notification.service';
 import { TaskService } from '../../../core/services/task.service';
 
-/**
- * Formulario de creación. Es dueño de su propio envío (llama a TaskService) porque así
- * controla su estado "enviando" y su reinicio; al terminar avisa al padre con (created).
- */
+// este si hace su propio POST porque necesita saber cuando termina
+// para limpiar el formulario y soltar el boton. al final avisa al board con (created)
 @Component({
   selector: 'app-task-form',
   imports: [ReactiveFormsModule],
@@ -26,9 +24,9 @@ export class TaskForm {
   protected readonly statuses = TASK_STATUSES;
   protected readonly submitting = signal(false);
 
-  // nonNullable: al hacer reset() cada campo vuelve a su valor inicial, no a null.
+  // con nonNullable el reset() devuelve cada campo a su valor inicial y no a null
   protected readonly form = this.fb.group({
-    // pattern(/\S/): exige al menos un carácter que no sea espacio (igual que el backend).
+    // el pattern pide al menos un caracter que no sea espacio, igual que en el backend
     title: ['', [Validators.required, Validators.maxLength(150), Validators.pattern(/\S/)]],
     description: [''],
     status: this.fb.control<TaskStatus>('Pendiente'),
@@ -36,7 +34,7 @@ export class TaskForm {
     category_id: this.fb.control<number | null>(null, Validators.required),
   });
 
-  /** Muestra el error de un campo solo después de que el usuario lo tocó. */
+  // el error de un campo se muestra recien cuando el usuario ya paso por el
   protected showError(field: keyof typeof this.form.controls): boolean {
     const control = this.form.controls[field];
     return control.invalid && (control.touched || control.dirty);
@@ -44,7 +42,8 @@ export class TaskForm {
 
   protected onSubmit(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched(); // hace visibles todos los mensajes de error
+      // marca todo como tocado para que aparezcan los mensajes en rojo
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -56,7 +55,7 @@ export class TaskForm {
         description: value.description.trim() || null,
         status: value.status,
         due_date: value.due_date,
-        category_id: value.category_id!, // el validador required garantiza que no es null
+        category_id: value.category_id!, // aqui ya no puede ser null, lo cubre el required
       })
       .subscribe({
         next: (task) => {
@@ -65,7 +64,7 @@ export class TaskForm {
           this.submitting.set(false);
           this.created.emit(task);
         },
-        // El interceptor ya mostró el mensaje; aquí solo se libera el botón.
+        // el aviso de error ya lo muestra el interceptor, aqui solo se libera el boton
         error: () => this.submitting.set(false),
       });
   }

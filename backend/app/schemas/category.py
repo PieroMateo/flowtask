@@ -1,10 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 
 
+# como se ve una categoria en las respuestas de la API
 class CategoryRead(BaseModel):
-    """Lo que la API devuelve de una categoría."""
-
-    # Permite construir el esquema directamente desde un objeto SQLAlchemy (category.name, ...).
+    # permite armar el esquema directo desde el objeto de sqlalchemy
     model_config = ConfigDict(from_attributes=True)
 
     id: int

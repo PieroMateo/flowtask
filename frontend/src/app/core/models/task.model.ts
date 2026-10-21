@@ -1,24 +1,23 @@
 import { Category } from './category.model';
 
-/** Valores permitidos, en el mismo orden que el Enum TaskStatus del backend. */
+// tienen que coincidir con el enum TaskStatus del backend (enums.py)
 export const TASK_STATUSES = ['Pendiente', 'En Progreso', 'Completada'] as const;
 
-/** 'Pendiente' | 'En Progreso' | 'Completada', derivado del arreglo de arriba. */
+// sale del arreglo de arriba, queda como 'Pendiente' | 'En Progreso' | 'Completada'
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
-/** Espejo de TaskRead: lo que devuelve la API. */
+// lo que devuelve la API (TaskRead)
 export interface Task {
   id: number;
   title: string;
   description: string | null;
   status: TaskStatus;
-  /** Fecha ISO sin hora, ej. "2026-10-30". */
-  due_date: string;
+  due_date: string; // llega como "2026-10-30"
   category_id: number;
   category: Category;
 }
 
-/** Espejo de TaskCreate: body de POST /tasks. */
+// lo que se manda en el POST (TaskCreate)
 export interface TaskCreate {
   title: string;
   description?: string | null;
@@ -27,10 +26,10 @@ export interface TaskCreate {
   category_id: number;
 }
 
-/** Espejo de TaskUpdate: body de PATCH /tasks/{id}. Todo es opcional. */
+// para el PATCH, Partial vuelve opcionales todos los campos
 export type TaskUpdate = Partial<TaskCreate>;
 
-/** Filtros del tablero. undefined = sin filtrar por ese campo. */
+// si un filtro queda en undefined es que no se filtra por ese campo
 export interface TaskFilters {
   status?: TaskStatus;
   categoryId?: number;

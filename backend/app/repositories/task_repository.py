@@ -7,9 +7,8 @@ from app.core.enums import TaskStatus
 from app.models import Task
 
 
+# aqui solo se consulta y se guarda, las reglas van en el service
 class TaskRepository:
-    """Acceso a datos de tareas. Solo consulta y guarda; no aplica reglas de negocio."""
-
     def __init__(self, db: Session):
         self.db = db
 
@@ -20,13 +19,14 @@ class TaskRepository:
         limit: int = 50,
         offset: int = 0,
     ) -> list[Task]:
-        # selectinload trae las categorías de todas las tareas en 1 consulta extra
-        # (en vez de 1 por tarea: el problema N+1).
+        # selectinload trae todas las categorias en una sola consulta extra,
+        # si no se haria una consulta por cada tarea
         stmt = select(Task).options(selectinload(Task.category))
         if status is not None:
             stmt = stmt.where(Task.status == status)
         if category_id is not None:
             stmt = stmt.where(Task.category_id == category_id)
+        # el id desempata cuando dos tareas tienen la misma fecha, sino la paginacion se mueve
         stmt = stmt.order_by(Task.due_date, Task.id).limit(limit).offset(offset)
         return list(self.db.scalars(stmt))
 
@@ -36,6 +36,7 @@ class TaskRepository:
     def create(self, task: Task) -> Task:
         self.db.add(task)
         self.db.commit()
+        # se recarga con la categoria para que la respuesta del POST ya traiga el nombre
         self.db.refresh(task, ["category"])
         return task
 
