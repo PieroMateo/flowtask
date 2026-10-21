@@ -1,52 +1,50 @@
 # FlowTask
 
-Herramienta ligera de seguimiento de actividades para equipos pequeños: las tareas se clasifican por **categoría** (área o proyecto) y avanzan por los estados **Pendiente → En Progreso → Completada**.
+Aplicación para llevar el seguimiento de tareas de un equipo pequeño. Cada tarea pertenece a una categoría (un área o proyecto) y pasa por tres estados: Pendiente, En Progreso y Completada.
 
 ![Tablero de FlowTask](docs/captura.jpg)
 
-## Stack
+## Tecnologías
 
-| Capa | Tecnología |
-|---|---|
-| Backend | Python 3.10+ · FastAPI · Pydantic v2 |
-| ORM y base de datos | SQLAlchemy 2.x · SQLite |
-| Frontend | Angular 22 · TypeScript · Tailwind CSS 4 |
-| Pruebas | pytest · TestClient |
-| Contenedores | Docker · Docker Compose · nginx |
+- Backend: Python 3.10+ con FastAPI y Pydantic v2
+- Base de datos: SQLite, usando SQLAlchemy 2.x como ORM
+- Frontend: Angular 22 con TypeScript y Tailwind CSS 4
+- Pruebas: pytest con el TestClient de FastAPI
+- Docker Compose para levantar todo junto (el frontend se sirve con nginx)
 
-## Estructura del repositorio
+## Estructura
 
 ```
 FlowTask/
 ├── backend/
 │   ├── app/
-│   │   ├── core/           # Configuración, enums y excepciones de dominio
-│   │   ├── models/         # Modelos SQLAlchemy (tablas)
-│   │   ├── schemas/        # Esquemas Pydantic (entrada y salida de la API)
-│   │   ├── repositories/   # Consultas a la base de datos
-│   │   ├── services/       # Reglas de negocio
-│   │   ├── routers/        # Endpoints HTTP
-│   │   ├── dependencies.py # Inyección de servicios con Depends
-│   │   ├── database.py     # Engine, sesión y get_db
-│   │   └── seed.py         # Lógica de la semilla
-│   ├── tests/              # Pruebas con pytest
-│   ├── main.py             # App FastAPI, CORS, routers y manejadores de error
-│   └── seed.py             # Script ejecutable: python seed.py
+│   │   ├── core/           # configuración, enums y excepciones propias
+│   │   ├── models/         # modelos de SQLAlchemy (las tablas)
+│   │   ├── schemas/        # esquemas de Pydantic (lo que entra y sale de la API)
+│   │   ├── repositories/   # consultas a la base de datos
+│   │   ├── services/       # reglas de negocio
+│   │   ├── routers/        # endpoints
+│   │   ├── dependencies.py # inyección de los services con Depends
+│   │   ├── database.py     # engine, sesión y get_db
+│   │   └── seed.py         # lógica de la semilla
+│   ├── tests/
+│   ├── main.py             # crea la app, CORS, routers y manejo de errores
+│   └── seed.py             # script para correr la semilla: python seed.py
 ├── frontend/
 │   └── src/app/
-│       ├── core/           # Modelos tipados, servicios HTTP e interceptor
+│       ├── core/           # modelos, servicios HTTP e interceptor de errores
 │       ├── features/tasks/ # TaskBoard, TaskForm, FilterBar, TaskList, TaskCard
-│       └── shared/         # Componente de notificaciones
+│       └── shared/         # avisos (notificaciones)
 └── docker-compose.yml
 ```
 
-## Requisitos previos
+## Requisitos
 
 - Python 3.10 o superior
-- Node.js 22.22+ o 24.15+ (con npm), requerido por Angular 22
-- Opcional: Docker Desktop
+- Node.js 22.22+ o 24.15+ con npm (lo pide Angular 22)
+- Docker Desktop, solo si se quiere usar la opción con Docker
 
-## Levantar el backend
+## Cómo levantar el backend
 
 ```bash
 cd backend
@@ -66,14 +64,13 @@ python seed.py
 uvicorn main:app --reload
 ```
 
-- API: http://localhost:8000
-- Documentación interactiva (Swagger): http://localhost:8000/docs
+La API queda en http://localhost:8000 y la documentación de Swagger en http://localhost:8000/docs.
 
-> El paso 3 es opcional: al arrancar, la API también crea las tablas y carga la semilla. La semilla es idempotente, así que ejecutarla varias veces no duplica categorías.
+El paso 3 se puede saltar, porque al arrancar la API también crea las tablas y carga la semilla. La semilla revisa qué categorías ya existen antes de insertar, así que correrla varias veces no duplica nada.
 
-## Levantar el frontend
+## Cómo levantar el frontend
 
-En otra terminal, con el backend en ejecución:
+En otra terminal, con el backend corriendo:
 
 ```bash
 cd frontend
@@ -81,40 +78,37 @@ npm install
 npm start
 ```
 
-Abrir http://localhost:4200
+Luego abrir http://localhost:4200
 
-## Levantar todo con Docker
+## Con Docker
 
 ```bash
 docker compose up --build
 ```
 
-- Frontend: http://localhost:4200
-- Backend: http://localhost:8000/docs
+El frontend queda en http://localhost:4200 y el backend en http://localhost:8000/docs. La base de datos se guarda en el volumen `flowtask-data`, así que las tareas no se pierden al reiniciar los contenedores. Para borrarlas se usa `docker compose down -v`.
 
-La base de datos SQLite se guarda en el volumen `flowtask-data`, por lo que los datos se conservan al reiniciar los contenedores. Para borrarlos: `docker compose down -v`.
-
-## Ejecutar las pruebas
+## Pruebas
 
 ```bash
 cd backend
 pytest -v
 ```
 
-Cada prueba usa una base de datos SQLite **en memoria** y desechable, por lo que nunca modifica `flowtask.db`.
+Cada prueba trabaja con una base de datos SQLite en memoria que se crea y se borra en el momento, por eso nunca modifican `flowtask.db`.
 
 ## Endpoints
 
-| Método | Ruta | Descripción | Respuestas |
+| Método | Ruta | Qué hace | Respuestas |
 |---|---|---|---|
 | GET | `/categories` | Lista las categorías | 200 |
 | GET | `/tasks` | Lista tareas. Filtros: `status`, `category_id`. Paginación: `limit` (1-100, por defecto 50) y `offset` | 200, 422 |
-| GET | `/tasks/{id}` | Obtiene una tarea | 200, 404 |
+| GET | `/tasks/{id}` | Devuelve una tarea | 200, 404 |
 | POST | `/tasks` | Crea una tarea | 201, 422 |
-| PATCH | `/tasks/{id}` | Actualiza parcialmente una tarea (por ejemplo, solo `status`) | 200, 404, 422 |
+| PATCH | `/tasks/{id}` | Cambia solo los campos enviados, por ejemplo el `status` | 200, 404, 422 |
 | DELETE | `/tasks/{id}` | Elimina una tarea | 204, 404 |
 
-Ejemplo de creación:
+Ejemplo para crear una tarea:
 
 ```json
 POST /tasks
@@ -127,62 +121,68 @@ POST /tasks
 }
 ```
 
-Los errores siempre tienen el formato `{"detail": ...}`. Por ejemplo, `GET /tasks/99999` responde `404 {"detail": "Tarea no encontrada"}`.
+Todos los errores tienen la forma `{"detail": ...}`. Por ejemplo, `GET /tasks/99999` responde `404 {"detail": "Tarea no encontrada"}`.
 
 ## Decisiones de Diseño y Arquitectura
 
-### Backend en capas
+### El backend en capas
 
-Cada petición recorre `router → service → repository → base de datos`, y cada capa tiene una única responsabilidad:
+Separé el backend para que cada petición pase por `router`, luego `service`, luego `repository` y recién ahí llegue a la base de datos.
 
-- **Routers**: solo traducen HTTP (rutas, parámetros, códigos de estado y `response_model`). Cada endpoint delega en una línea al servicio.
-- **Services**: contienen las reglas de negocio, como verificar que la tarea o la categoría existan. No importan nada de FastAPI: comunican los errores lanzando excepciones de dominio.
-- **Repositories**: encapsulan las consultas SQLAlchemy. Cambiar de motor de base de datos o de estrategia de consulta no afecta la lógica de negocio.
+Los routers solo se encargan de lo que tiene que ver con HTTP: la ruta, los parámetros, el código de respuesta y el `response_model`. Cada endpoint tiene una sola línea que llama al service.
 
-Esta separación permite probar y modificar cada parte por separado. Por ejemplo, las pruebas reemplazan la base de datos con `dependency_overrides` sin tocar ninguna capa.
+En los services están las reglas, por ejemplo revisar que la tarea o la categoría existan. No importan nada de FastAPI. Cuando algo está mal lanzan una excepción propia y es `main.py` quien decide qué código HTTP devolver.
 
-### Modelos separados de los esquemas
+Los repositories tienen las consultas de SQLAlchemy. Si mañana se cambia de base de datos o la forma de consultar, la lógica de los services no se toca.
 
-Los modelos SQLAlchemy describen cómo se **guardan** los datos; los esquemas Pydantic describen lo que **entra y sale** de la API. Así, `TaskCreate` no acepta `id`, `TaskUpdate` tiene todos sus campos opcionales para el PATCH parcial, y `TaskRead` **anida la categoría** para que el frontend muestre su nombre sin hacer otra petición.
+Con esta separación cada parte se puede probar por su lado. En los tests, por ejemplo, cambio la base de datos real por una en memoria con `dependency_overrides` sin modificar ninguna capa.
 
-### Validación en dos niveles
+### Modelos y esquemas por separado
 
-1. **Pydantic** valida la forma de los datos y responde 422 automáticamente: título obligatorio y no vacío (se recortan los espacios), estado restringido al enum `TaskStatus`, y fecha ISO válida.
-2. **El servicio** valida lo que requiere consultar la base de datos, como que `category_id` exista.
+Los modelos de SQLAlchemy describen cómo se guardan los datos y los esquemas de Pydantic describen lo que recibe y devuelve la API. Por eso `TaskCreate` no acepta `id`, `TaskUpdate` tiene todos sus campos opcionales para el PATCH, y `TaskRead` trae la categoría completa adentro para que el frontend muestre el nombre sin tener que hacer otra petición.
 
-El estado se define una sola vez como `Enum` en Python (`app/core/enums.py`) y lo comparten el modelo, los esquemas y los filtros. En el frontend, `TASK_STATUSES` cumple el mismo papel.
+### Validaciones
+
+Las validaciones están en dos lugares. Pydantic revisa la forma de los datos y responde 422 solo: que el título no esté vacío (también le quita los espacios de los lados), que el estado sea uno de los tres permitidos y que la fecha sea válida. Lo que necesita consultar la base de datos, como que el `category_id` exista, lo revisa el service.
+
+Los estados están definidos una sola vez en un `Enum` (`app/core/enums.py`) que usan el modelo, los esquemas y los filtros. En el frontend `TASK_STATUSES` cumple el mismo papel.
 
 ### Manejo de errores
 
-Los servicios lanzan `NotFoundError` o `InvalidReferenceError`, y un manejador global en `main.py` las traduce a respuestas JSON. Esto mantiene los servicios independientes de HTTP y garantiza que un recurso inexistente nunca produzca un 500. Un manejador adicional captura cualquier error inesperado, lo registra en el log y devuelve un mensaje genérico, sin exponer detalles internos.
+Los services lanzan `NotFoundError` o `InvalidReferenceError` y un manejador en `main.py` las convierte en una respuesta JSON. Así los services no dependen de HTTP y un recurso que no existe nunca termina en un error 500. También agregué un manejador para cualquier error que no esté previsto, que lo deja registrado en la consola y al cliente le devuelve un mensaje simple sin detalles internos.
 
-**404 frente a 422:** se responde **404** cuando no existe el recurso de la URL (`/tasks/99999`) y **422** cuando el *body* hace referencia a una categoría inexistente, porque la ruta `/tasks` sí existe y el problema está en el contenido enviado.
+Elegí 404 cuando lo que no existe es el recurso de la URL (`/tasks/99999`) y 422 cuando el body apunta a una categoría que no existe. En ese segundo caso la ruta `/tasks` sí existe, el problema está en los datos que se mandaron.
 
-En un PATCH, enviar explícitamente `null` en un campo obligatorio (por ejemplo, `{"title": null}`) se rechaza con 422, en lugar de llegar a la base de datos y provocar un error de integridad.
+En el PATCH, si se manda un campo obligatorio en `null` (por ejemplo `{"title": null}`) se rechaza con 422. Sin esa validación el valor llegaba a la base de datos y terminaba en un error de integridad.
 
 ### Base de datos
 
-- **SQLite**, por simplicidad: no requiere instalar un servidor. La URL se lee de la variable de entorno `DATABASE_URL`, así que migrar a PostgreSQL solo requiere cambiar esa variable e instalar el driver.
-- Las llaves foráneas se activan con `PRAGMA foreign_keys=ON` en cada conexión, porque SQLite no las aplica por defecto.
-- El listado usa `selectinload` para traer las categorías en una sola consulta adicional y evitar el problema N+1. El orden es por fecha límite y luego por `id`, para que la paginación sea estable.
+Usé SQLite porque no hace falta instalar ningún servidor. La conexión se lee de la variable de entorno `DATABASE_URL`, así que pasar a PostgreSQL sería cambiar esa variable e instalar el driver.
 
-### CORS estricto
+SQLite trae las llaves foráneas desactivadas, por eso las activo con `PRAGMA foreign_keys=ON` en cada conexión.
 
-Solo se permite el origen `http://localhost:4200` (configurable con `CORS_ORIGINS`), los métodos que la API usa (`GET`, `POST`, `PATCH`, `DELETE`) y el encabezado `Content-Type`.
+Al listar tareas uso `selectinload` para traer las categorías en una sola consulta extra y no una por cada tarea (el problema N+1). El orden es por fecha límite y después por `id`, así la paginación no cambia de orden entre una página y otra.
+
+### CORS
+
+Solo se permite el origen `http://localhost:4200` (se puede cambiar con `CORS_ORIGINS`), los métodos que la API usa (`GET`, `POST`, `PATCH`, `DELETE`) y el encabezado `Content-Type`.
 
 ### Frontend
 
-- **Servicios**: `TaskService` y `CategoryService` son los únicos que usan `HttpClient`. Los componentes nunca declaran peticiones HTTP.
-- **Interfaces tipadas** (`Task`, `Category`, `TaskCreate`, `TaskUpdate`) que reflejan los esquemas del backend.
-- **Componentes contenedor y presentacionales**: `TaskBoard` guarda el estado y coordina los servicios; `FilterBar`, `TaskList` y `TaskCard` solo reciben datos con `input()` y emiten eventos con `output()`. `TaskForm` gestiona su propio envío para controlar su estado "guardando" y su reinicio.
-- **Signals** para todo el estado, lo que permite que la aplicación funcione sin Zone.js y que la vista se actualice al instante tras crear, completar o eliminar, sin recargar la página.
-- **Interceptor de errores**: centraliza los avisos al usuario. Distingue el backend caído (`status 0`), los errores de dominio (`detail` como texto) y los errores de validación (`detail` como lista).
-- Al cambiar de filtro se cancela la petición anterior, para evitar que una respuesta tardía sobrescriba a la más reciente. Los botones de una tarea se desactivan mientras su petición está en curso, para evitar dobles envíos.
+`TaskService` y `CategoryService` son los únicos que usan `HttpClient`, ningún componente hace peticiones directamente. Las interfaces `Task`, `Category`, `TaskCreate` y `TaskUpdate` copian los esquemas del backend.
 
-### Mejoras con más tiempo
+`TaskBoard` es el componente que guarda el estado y llama a los servicios. `FilterBar`, `TaskList` y `TaskCard` solo reciben datos con `input()` y avisan con `output()` cuando el usuario hace algo. `TaskForm` es la excepción: hace su propio POST porque necesita saber cuándo termina para limpiar el formulario y volver a habilitar el botón.
 
-- Migraciones con Alembic en lugar de `create_all`.
-- Pruebas del frontend y pruebas end-to-end.
-- Devolver el total de registros en el listado para mostrar una paginación completa en la interfaz.
-- Edición completa de tareas desde la interfaz y gestión de categorías.
-- Autenticación y tareas por usuario.
+Todo el estado está en signals. Gracias a eso la app funciona sin Zone.js y la pantalla se actualiza en cuanto se crea, completa o elimina una tarea, sin recargar.
+
+Los errores los maneja un interceptor que distingue tres casos: el backend no responde (`status 0`), un error nuestro (`detail` como texto) o un error de validación de Pydantic (`detail` como lista).
+
+Cuando se cambia de filtro se cancela la petición anterior, porque si no una respuesta que llega tarde podía reemplazar a la más reciente. Además, mientras una tarea espera respuesta sus botones se desactivan para que un doble clic no mande la petición dos veces.
+
+### Qué mejoraría con más tiempo
+
+- Migraciones con Alembic en lugar de `create_all`
+- Pruebas en el frontend y pruebas end-to-end
+- Que el listado devuelva el total de registros para armar una paginación completa en la interfaz
+- Poder editar una tarea completa desde la interfaz y administrar las categorías
+- Autenticación y tareas por usuario
