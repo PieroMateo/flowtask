@@ -41,44 +41,77 @@ FlowTask/
 ## Requisitos
 
 - Python 3.10 o superior
-- Node.js 22.22+ o 24.15+ con npm (lo pide Angular 22)
+- Node.js 22.22+ o 24.15+ con npm, lo pide Angular 22
 - Docker Desktop, solo si se quiere usar la opción con Docker
 
-## Cómo levantar el backend
+## Cómo levantar el proyecto
+
+Hacen falta dos terminales abiertas a la vez, una para el backend y otra para el frontend. Los comandos se escriben de uno en uno, y las líneas que empiezan con `#` son solo notas.
+
+### La primera vez
+
+Después de clonar hay que preparar las dos partes. Esto se hace una sola vez.
+
+Backend:
+
+```bash
+git clone <url-del-repo>
+cd flowtask/backend
+
+# crea el entorno virtual, una carpeta .venv con su propio python
+python -m venv .venv
+
+# lo activa, usar solo la línea de tu sistema
+.venv\Scripts\activate          # windows
+source .venv/bin/activate       # linux / macos
+
+# instala fastapi, sqlalchemy y lo demás dentro de .venv
+pip install -r requirements.txt
+
+# crea la base de datos con las categorías trabajo, personal y urgente
+# se puede saltar, el backend lo hace solo al arrancar
+python seed.py
+```
+
+Frontend, en otra terminal y desde la carpeta del repo:
+
+```bash
+cd frontend
+
+# descarga angular y las demás librerías en node_modules
+npm install
+```
+
+### Cada vez que se quiera usar
+
+Primero el backend, en la terminal 1:
 
 ```bash
 cd backend
 
-# 1. Crear y activar el entorno virtual
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-source .venv/bin/activate       # Linux / macOS
+# hay que activarlo en cada terminal nueva
+.venv\Scripts\activate          # windows
+source .venv/bin/activate       # linux / macos
 
-# 2. Instalar dependencias
-pip install -r requirements.txt
-
-# 3. Crear las tablas y cargar las categorías base (Trabajo, Personal, Urgente)
-python seed.py
-
-# 4. Levantar el servidor
 uvicorn main:app --reload
 ```
 
-La API queda en http://localhost:8000 y la documentación de Swagger en http://localhost:8000/docs.
+Cuando aparezca `Application startup complete` el backend ya está listo. Esa terminal queda ocupada mientras el servidor corre, y se apaga con Ctrl + C.
 
-El paso 3 se puede saltar, porque al arrancar la API también crea las tablas y carga la semilla. La semilla revisa qué categorías ya existen antes de insertar, así que correrla varias veces no duplica nada.
-
-## Cómo levantar el frontend
-
-En otra terminal, con el backend corriendo:
+Después el frontend, en la terminal 2:
 
 ```bash
 cd frontend
-npm install
 npm start
 ```
 
-Luego abrir http://localhost:4200
+Cuando diga `Local: http://localhost:4200/` se abre esa dirección en el navegador. La API queda en http://localhost:8000 y su documentación de Swagger en http://localhost:8000/docs.
+
+Si la página se abre con el backend apagado sale un aviso rojo. Basta con encender el backend y pulsar "Reintentar".
+
+Si el entorno quedó activado, la terminal muestra `(.venv)` al inicio de la línea. En PowerShell a veces la activación falla con un error de "ejecución de scripts deshabilitada". Se soluciona corriendo una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` y volviendo a activar.
+
+La semilla revisa qué categorías ya existen antes de insertar, así que correrla varias veces no duplica nada.
 
 ## Con Docker
 
@@ -90,6 +123,8 @@ El frontend queda en http://localhost:4200 y el backend en http://localhost:8000
 
 ## Pruebas
 
+Con el entorno virtual activado:
+
 ```bash
 cd backend
 pytest -v
@@ -99,14 +134,14 @@ Cada prueba trabaja con una base de datos SQLite en memoria que se crea y se bor
 
 ## Endpoints
 
-| Método | Ruta | Qué hace | Respuestas |
-|---|---|---|---|
-| GET | `/categories` | Lista las categorías | 200 |
-| GET | `/tasks` | Lista tareas. Filtros: `status`, `category_id`. Paginación: `limit` (1-100, por defecto 50) y `offset` | 200, 422 |
-| GET | `/tasks/{id}` | Devuelve una tarea | 200, 404 |
-| POST | `/tasks` | Crea una tarea | 201, 422 |
-| PATCH | `/tasks/{id}` | Cambia solo los campos enviados, por ejemplo el `status` | 200, 404, 422 |
-| DELETE | `/tasks/{id}` | Elimina una tarea | 204, 404 |
+- `GET /categories` devuelve todas las categorías.
+- `GET /tasks` lista las tareas. Se pueden filtrar por `status` y `category_id`, y paginar con `limit` (de 1 a 100, por defecto 50) y `offset`.
+- `GET /tasks/{id}` devuelve una tarea.
+- `POST /tasks` crea una tarea y responde 201.
+- `PATCH /tasks/{id}` cambia solo los campos que se manden, por ejemplo el `status`.
+- `DELETE /tasks/{id}` borra la tarea y responde 204, sin contenido.
+
+Si el id de la URL no existe la API responde 404, y si los datos que se mandan no son válidos responde 422.
 
 Ejemplo para crear una tarea:
 
@@ -179,10 +214,4 @@ Los errores los maneja un interceptor que distingue tres casos: el backend no re
 
 Cuando se cambia de filtro se cancela la petición anterior, porque si no una respuesta que llega tarde podía reemplazar a la más reciente. Además, mientras una tarea espera respuesta sus botones se desactivan para que un doble clic no mande la petición dos veces.
 
-### Qué mejoraría con más tiempo
 
-- Migraciones con Alembic en lugar de `create_all`
-- Pruebas en el frontend y pruebas end-to-end
-- Que el listado devuelva el total de registros para armar una paginación completa en la interfaz
-- Poder editar una tarea completa desde la interfaz y administrar las categorías
-- Autenticación y tareas por usuario
